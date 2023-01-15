@@ -14,12 +14,15 @@ export default class CardList extends Component{
 
 
     render(){
+
+        const { loading } =this.props
         const { data } = this.props;
         const elements = data.map((item) => {
         const {id} = item;
             return(
                     <Card 
                     { ...item}
+                    loading={loading}
                     key={id}
                     />
 

@@ -36,3 +36,16 @@ button:active, button:focus {
 body{
     padding: 0 215px;
 }
+
+.container{
+	height: 100vh;
+}
+.spiner {
+	margin: 20px 0;
+	margin-bottom: 20px;
+	padding: 30px 50px;
+	text-align: center;
+	background: rgba(0, 0, 0, 0.05);
+	border-radius: 4px;
+	height: 100vh;
+  }
