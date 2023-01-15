@@ -11,24 +11,27 @@
 .card__photo{
     width: 183px;
     height: 281px;
+    object-fit: none;
 
+}
+
+.card__title{
+    font-weight: 400;
+    font-size: 20px;
+}
+
+.card__plot{
+    width: 228px;
+    height: 129px;
+    overflow: hidden;
 }
 
 .card__description{
-    padding: 12px 20px 0 20px;
-   /* display: flex;
-    flex-direction: column;
-    align-items: stretch;*/
+    padding: 12px 20px 49px 20px;
    
 }
 
-h2{
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 20px;
-    line-height: 28px;
-}
+
 p{
     font-family: 'Inter';
     font-style: normal;
