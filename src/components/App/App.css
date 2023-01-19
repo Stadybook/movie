@@ -49,3 +49,50 @@ body{
 	border-radius: 4px;
 	height: 100vh;
   }
+
+  .search{
+	display: flex;
+	justify-content: center;
+  }
+.search__placeholder{
+	background: #FFFFFF;
+	height: 40px;
+	width: 938px;
+	border: 1px solid #D9D9D9;
+	border-radius: 4px;
+	margin: 20px 0 32px 0;
+}
+
+.search__placeholder:focus, .search__placeholder:hover{
+	border: 1px solid #362ff8;
+}
+
+.toggle{
+	display: flex;
+	justify-content: center;
+	gap:16px;
+}
+
+.toggle__button{
+	padding: 10px;
+	font-style: normal;
+	font-weight: 400;
+	font-size: 14px;
+	line-height: 22px;
+}
+/*.toggle__button:hover, .toggle__button:focus{
+	color: #1890FF;
+}*/
+
+.toggle__button.active{
+	color: #1890FF;
+	border-bottom: 3px #1890FF solid;
+}
+
+
+
+
+/*.toggle__button{
+	width: 20px;
+	height: 20px;
+}*/

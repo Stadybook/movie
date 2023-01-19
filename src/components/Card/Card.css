@@ -1,11 +1,15 @@
 .card{
+    position: relative;
     display: flex;
     flex-direction: row;
     width: 454px;
     height: 281px;
-    
-    
 
+}
+.card__title{
+    padding-right: 39px;
+
+   
 }
 
 .card__photo{
@@ -15,20 +19,47 @@
 
 }
 
-.card__title{
+.card__date, .card__plot{
     font-weight: 400;
+    font-size: 12px;
 }
 
 .card__plot{
-    width: 228px;
     height: 129px;
-    overflow: hidden;
+   
+    margin-top: 7px;
+  
 }
 
-.card__description{
-    padding: 12px 20px 49px 20px;
-   
+.card__info{
+    padding: 12px 0 0 20px;
 }
+.card__description{
+    height: 235px; 
+    overflow: hidden;
+  
+}
+
+.card__date{
+    margin-bottom: 7px;
+}
+.card__stars{
+    width: 239px;
+    height: 46px;
+    font-size: 16px;
+}
+.card__mark{
+    position: absolute;
+    right: 9px;
+    top:12px;
+    height: 30px;
+    min-width: 30px;
+    text-align: center;
+    border: 2px solid;
+    border-radius: 50%;
+
+}
+
 
 
 p{
@@ -38,3 +69,48 @@ p{
     font-size: 12px;
     line-height: 22px;
 }
+/*
+
+.card{
+    display: flex;
+    flex-direction: row;
+    width: 454px;
+    height: 281px;
+
+}
+
+.card__description{
+    height: 281px;
+    display: grid;
+   
+    grid-template-areas: 'title mark' 
+                         'date date' 
+                          'genre genre' 
+                        'description description' 
+                         'stars stars' ;
+    grid-template-rows:  28px 22px 20px 29px 46px;
+     grid-template-columns: 1fr 30px;
+}
+
+.card__photo{
+    width: 183px;
+    height: 281px;
+}
+.card__title{
+    grid-area: 'title';
+}
+.card__date{
+    grid-area: 'date';
+}
+.card__genre{
+    grid-area: 'genre';
+}
+.card__plot{
+    grid-area:'description' ;
+}
+.card__stars{
+    grid-area: 'stars';
+    width: 239px;
+    height: 46px;
+    font-size: 16px;
+}*/
