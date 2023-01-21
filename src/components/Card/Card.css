@@ -6,10 +6,9 @@
     height: 281px;
 
 }
-.card__title{
-    padding-right: 39px;
-
-   
+.card__description .card__title{
+    padding-right: 45px;
+    font-weight: 400;  
 }
 
 .card__photo{

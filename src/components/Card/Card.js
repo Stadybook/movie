@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import './Card.css';
 import { Image } from 'antd';
-import { format,parseISO } from 'date-fns'
+import { format} from 'date-fns'
 import { Typography } from 'antd';
 import { Rate } from 'antd';
+import image from './no_photo.png';
 const { Title, Paragraph, Text } = Typography;
 //import PropTypes from 'prop-types';
 
@@ -13,8 +14,8 @@ export default class Card extends Component  {
 
     const { id,title, genre_ids ,overview,backdrop_path, release_date,vote_average} = this.props;
     const releaseDate = release_date ? format(new Date(release_date), 'MMMM dd, yyyy') : 'no release date';
-   
-    
+    const photoURL = 'https://image.tmdb.org/t/p/w500'
+    const src = backdrop_path ? `${photoURL}${backdrop_path}` : image;
     function truncate(text,symbols) {
       if (text.length <= symbols) {
         return text;
@@ -23,9 +24,10 @@ export default class Card extends Component  {
       return `${overview.substring(0, overview.lastIndexOf(' '))}...`;
     }
 
-    const plot = truncate(overview,250)
+    const plot = overview ? truncate(overview,250) : 'No overview';
     
-    const  mark = Number(vote_average)
+
+    const mark = Number(vote_average);
     let colorBorder;
     if(5 < mark && mark < 7) {
       colorBorder = '#E9D100';
@@ -43,12 +45,14 @@ export default class Card extends Component  {
           <Image className="card__photo"
           width={1000}
           height={280}
-          src={`https://image.tmdb.org/t/p/w500${backdrop_path}`}  alt="movie-zphoto"
+          
+          src={src}  alt="movie-zphoto"
         />
         <div className="card__info">
           <Typography className="card__description">
             <Title className="card__title"
-            level={4}>
+            level={4}
+           >
               {title}
               </Title>
             <span className="card__date">{releaseDate} </span><br/>
@@ -60,5 +64,5 @@ export default class Card extends Component  {
           <span style={{borderColor:`${colorBorder}`}} className="card__mark">{vote_average}</span>
         </li>
       );
-  }// 
+  }
 }

@@ -1,0 +1,17 @@
+
+.search{
+	display: flex;
+	justify-content: center;
+  }
+.search__placeholder{
+	background: #FFFFFF;
+	height: 40px;
+	width: 938px;
+	border: 1px solid #D9D9D9;
+	border-radius: 4px;
+	margin: 20px 0 32px 0;
+}
+
+.search__placeholder:focus, .search__placeholder:hover{
+	border: 1px solid #362ff8;
+}
