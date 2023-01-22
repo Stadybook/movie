@@ -1,10 +1,10 @@
 import React, { Component } from "react";
+import CuttingFn from "../CuttingFn/CuttingFn";
 import './Card.css';
 import { Image } from 'antd';
 import { format} from 'date-fns'
 import { Typography } from 'antd';
 import { Rate } from 'antd';
-import image from './no_photo.png';
 const { Title, Paragraph, Text } = Typography;
 //import PropTypes from 'prop-types';
 
@@ -12,19 +12,23 @@ export default class Card extends Component  {
 
   render(){
 
-    const { id,title, genre_ids ,overview,backdrop_path, release_date,vote_average} = this.props;
+    const {getGenre, id,title, genre_ids ,overview,backdrop_path, release_date,vote_average} = this.props;
     const releaseDate = release_date ? format(new Date(release_date), 'MMMM dd, yyyy') : 'no release date';
     const photoURL = 'https://image.tmdb.org/t/p/w500'
-    const src = backdrop_path ? `${photoURL}${backdrop_path}` : image;
-    function truncate(text,symbols) {
-      if (text.length <= symbols) {
-        return text;
-      }
-      const overview = text.substring(0, symbols - 1);
-      return `${overview.substring(0, overview.lastIndexOf(' '))}...`;
-    }
+    const src = backdrop_path ? `${photoURL}${backdrop_path}` : 'https://place-hold.it/280x1000/e1eaf1/000/c8c7f7?text=No poster';
+    const genres = getGenre(genre_ids)
+  
+    const filmGenres = (
+      <React.Fragment>
+      {genres.map((genre) => {
+        return (
+          <Text keyboard key={genre} className='text'>{genre}</Text> 
+        );
+      })}
+      </React.Fragment>
+    )
 
-    const plot = overview ? truncate(overview,250) : 'No overview';
+    const plot = overview ? CuttingFn(overview,180) : 'No overview';
     
 
     const mark = Number(vote_average);
@@ -56,10 +60,10 @@ export default class Card extends Component  {
               {title}
               </Title>
             <span className="card__date">{releaseDate} </span><br/>
-            <Text keyboard> {genre_ids}</Text>
+           <div className="card__genres">{filmGenres}</div>
             <Paragraph className="card__plot">{plot}</Paragraph>
           </Typography>
-          <Rate className='card__stars' disabled count={10} defaultValue={vote_average} />
+          <Rate className='card__stars' count={10} defaultValue='0' />
           </div>
           <span style={{borderColor:`${colorBorder}`}} className="card__mark">{vote_average}</span>
         </li>

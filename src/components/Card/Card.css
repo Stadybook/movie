@@ -42,6 +42,20 @@
 .card__date{
     margin-bottom: 7px;
 }
+
+.card__description .card__genres {
+    display: flex;
+    gap:10px;
+    flex-wrap: wrap;
+    color: black;
+   
+}
+
+kbd{
+ color: black;
+  
+}
+
 .card__stars{
     width: 239px;
     height: 46px;

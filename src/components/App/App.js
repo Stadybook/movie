@@ -5,7 +5,6 @@ import './App.css';
 import Spiner from "../Spiner";
 import Error from "../ErrorHanding";
 import SearchFunction from "../Search/Search";
-
 import { Pagination } from 'antd';
 
 
@@ -20,22 +19,27 @@ export default class App extends Component{
           error: false,
           totalPages: 0,
           pageNumber: 1,
+          genresData:[]
         };  
     
         getFilms = new Service();
-        componentDidMount(){
-          const { pageNumber } = this.state;
-            this.showFilms(pageNumber);
-        }
+
+
+      componentDidMount(){
+        const { pageNumber } = this.state;
+        this.allFillmGenres();
+        this.showFilms(pageNumber);
+      
+      }
 
       showFilms(){
         const { pageNumber } = this.state;
         const { inputValue } = this.state;
         this.setState({
-          loading:false,
-          error:false,
+          isLoading: true,
+          notFound: false,
+          isError: false,
         })
-
         if(inputValue === ''){
           this.showPopularFilms()
         }
@@ -44,6 +48,8 @@ export default class App extends Component{
             .getRequestFilms(inputValue,pageNumber )
               .then((body) =>{
                 this.setState({
+                  loading:false,
+                  error:false,
                   totalPages: body.total_pages,
                   pageNumber,
                   movieData:body.results
@@ -56,19 +62,22 @@ export default class App extends Component{
               })
               .catch(this.onError);
         } 
-
-          
       }
 
       showPopularFilms(){
         const { pageNumber } = this.state;
+        this.setState({
+          isLoading: true,
+          notFound: false,
+          isError: false,
+        })
         this.getFilms
         .getPopularFilms(pageNumber)
             .then((body) => {
               this.setState({
-                movieData: body.results,
                 loading:false,
                 error:false,
+                movieData: body.results,
                 totalPages: body.total_pages,
                 pageNumber
               })
@@ -77,16 +86,43 @@ export default class App extends Component{
             .catch(this.onError);
         }
 
+        
+  
+
+        allFillmGenres = () => {
+          this.getFilms
+           .getFilmGenre()
+            .then((body) => {
+            this.setState({
+              genresData: [...body],
+            });
+
+          })
+          .catch(this.onError);
+        }
+
+        getGenre= (ids) => {
+          const filmGenres = [];
+          const { genresData } = this.state;
+          ids.forEach((genreId)=>{
+            genresData.forEach(element => {
+              if(element.id === genreId ){
+                filmGenres.push(element.name)
+              }
+            });
+          })
+          return filmGenres;
+        
+        }
 
       onError = () => {
-
         this.setState({
             error:true,
             loading:false,
         })
       }
 
-      handlerClick = (event) =>{
+      handlerClick = (event) => {
         const buttons = document.querySelectorAll(".toggle__button");
         buttons.forEach(button => {
          button.classList.remove('active');
@@ -101,17 +137,22 @@ export default class App extends Component{
       }
 
       makeQuery = (query) => {
+        this.setState({
+          isLoading: true,
+        })
       if (query.length === 0){
-          this.showPopularFilms()
           this.setState({
             inputValue: '',
+            notFound:false,
+            pageNumber:1
           });
+          this.showPopularFilms()
         }
         else{
-          this.showFilms(query)
           this.setState({
             inputValue: query,
           });
+          this.showFilms(query)
         }
        
       };
@@ -126,64 +167,64 @@ export default class App extends Component{
 
 
     render(){
-      const { notFound } = this.state;
-      const { pageNumber } = this.state;
-      const { totalPages } = this.state;
-      const {loading} = this.state;
-      const {error} = this.state;
-      const { inputValue } = this.state;
+      const {movieData, notFound, pageNumber, totalPages, loading, error} = this.state;
 
-      const pagination = (totalPages >= 0 && !loading && !notFound) ? (
+      const pagination = (totalPages > 1 && !loading) ? (
         <Pagination 
         className="pagination" 
         defaultCurrent={1} 
         current={pageNumber}
-        total={totalPages/20} 
+        total={totalPages} 
         showSizeChanger={false}
+        disabled={false}
         onChange={this.pageChanging}
         />
       ): null;
 
-      const hasData = !(loading || error);
-      const warnMessage = notFound ? (<span className="warn-text">No results for your search</span>) : null;
-      const errorMessage = error ? <Error /> : null;
-      const spiner = loading ? <Spiner /> : null;
-      const list = hasData ? (
+      const hasData = !(error && loading);
+      const warnMessage = notFound ? (<span className="warn-text">No results for your search</span>) : null; 
+      const errorMessage = error ? <Error /> : null; 
+      const spiner = loading && !error ? <Spiner /> : null; 
+      const service = !error ? (
+        <React.Fragment>
+      <div className="toggle">
+      <button 
+        type='button'
+        className='toggle__button active'
+        onClick={this.handlerClick}
+      >
+      Search
+      </button>
+      <button 
+        type='button'
+        className='toggle__button'
+        onClick={this.handlerClick}
+      >
+      Rated
+      </button>
+    </div>
+    <SearchFunction 
+      makeQuery={this.makeQuery}
+    />
+     </React.Fragment>) : null;
+
+      const list = hasData ? ( 
             <React.Fragment>
-            <div className="toggle">
-              <button 
-                type='button'
-                className='toggle__button active'
-                onClick={this.handlerClick}
-              >
-              Search
-              </button>
-              <button 
-                type='button'
-                className='toggle__button'
-                onClick={this.handlerClick}
-              >
-              Rated
-              </button>
-            </div>
-             <SearchFunction 
-             value={inputValue}
-             makeQuery={this.makeQuery}
-             />
             {warnMessage}
             <CardList 
-            
-              data={this.state.movieData}
+              data={movieData}
+              getGenre={this.getGenre}
             />
-           
+            
             </React.Fragment>) : null;
         
         return(
             <section className="container" >
-                {errorMessage}
-                {spiner}
-                {list}
-                {pagination}
+            {errorMessage}
+            {service}
+            {spiner}
+            {list}  
+            {pagination}
             </section>
             )
     }

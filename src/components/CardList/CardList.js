@@ -6,11 +6,14 @@ export default class CardList extends Component{
 
     render(){
 
-        const { data } = this.props;
+        const { data, getGenre } = this.props;
+
         const elements = data.map((item) => {
+        
         const {id} = item;
             return(
               <Card 
+              getGenre={(ids) => getGenre(ids)}
                 { ...item}
                 key={id}
               />
