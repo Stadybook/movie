@@ -22,7 +22,7 @@ export default class SearchFunction extends Component{
                   <Input 
                         className='search__placeholder'
                         placeholder="Type to search..." 
-                        onChange={debounce(this.searching,300)}
+                        onChange={debounce(this.searching,800)}
                         type='text'   
                     />
             </form>

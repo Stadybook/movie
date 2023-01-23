@@ -1,4 +1,4 @@
-export default function CuttingFn(text,symbols) {
+export default function CuttingFn(text , symbols) {
     if (text.length <= symbols) {
       return text;
     }

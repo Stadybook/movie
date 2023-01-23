@@ -28,18 +28,30 @@ export default class App extends Component{
       componentDidMount(){
         const { pageNumber } = this.state;
         this.allFillmGenres();
-        this.showFilms(pageNumber);
-      
+        this.showPopularFilms(pageNumber);
+
       }
 
-      showFilms(){
+      componentDidUpdate(prevProps,prevState){
+        const { inputValue } = prevState
+        const { pageNumber } = prevState
+        if(this.state.inputValue !== inputValue || this.state.pageNumber !== pageNumber){
+          this.updateSearch()
+        }
+      }
+
+      updateSearch(){
+        const {inputValue} = this.state;
+        if(inputValue === ''){
+          return this.showPopularFilms()
+        }
+        this.showFilms()
+      }
+
+      showFilms(){  
         const { pageNumber } = this.state;
         const { inputValue } = this.state;
-        this.setState({
-          isLoading: true,
-          notFound: false,
-          isError: false,
-        })
+        
         if(inputValue === ''){
           this.showPopularFilms()
         }
@@ -49,6 +61,7 @@ export default class App extends Component{
               .then((body) =>{
                 this.setState({
                   loading:false,
+                  notFound: false,
                   error:false,
                   totalPages: body.total_pages,
                   pageNumber,
@@ -66,28 +79,20 @@ export default class App extends Component{
 
       showPopularFilms(){
         const { pageNumber } = this.state;
-        this.setState({
-          isLoading: true,
-          notFound: false,
-          isError: false,
-        })
         this.getFilms
         .getPopularFilms(pageNumber)
             .then((body) => {
               this.setState({
+                notFound: false,
                 loading:false,
                 error:false,
                 movieData: body.results,
                 totalPages: body.total_pages,
                 pageNumber
               })
-              
             })
             .catch(this.onError);
         }
-
-        
-  
 
         allFillmGenres = () => {
           this.getFilms
@@ -135,34 +140,18 @@ export default class App extends Component{
         event.target.classList.add('active');
 
       }
-
-      makeQuery = (query) => {
-        this.setState({
-          isLoading: true,
-        })
-      if (query.length === 0){
-          this.setState({
-            inputValue: '',
-            notFound:false,
-            pageNumber:1
-          });
-          this.showPopularFilms()
-        }
-        else{
+        makeQuery = (query) => {
           this.setState({
             inputValue: query,
+            loading: true,
           });
-          this.showFilms(query)
-        }
-       
       };
 
     pageChanging = (page) => {
       this.setState({
         pageNumber: page,
-      },
-      () => this.showFilms()
-      )
+        loading: true,
+      })
     }
 
 
@@ -181,12 +170,12 @@ export default class App extends Component{
         />
       ): null;
 
-      const hasData = !(error && loading);
+      const hasData = !(error && loading && notFound);
       const warnMessage = notFound ? (<span className="warn-text">No results for your search</span>) : null; 
       const errorMessage = error ? <Error /> : null; 
       const spiner = loading && !error ? <Spiner /> : null; 
       const service = !error ? (
-        <React.Fragment>
+      <React.Fragment>
       <div className="toggle">
       <button 
         type='button'
@@ -206,11 +195,10 @@ export default class App extends Component{
     <SearchFunction 
       makeQuery={this.makeQuery}
     />
-     </React.Fragment>) : null;
+    </React.Fragment>) : null;
 
       const list = hasData ? ( 
             <React.Fragment>
-            {warnMessage}
             <CardList 
               data={movieData}
               getGenre={this.getGenre}
@@ -222,6 +210,7 @@ export default class App extends Component{
             <section className="container" >
             {errorMessage}
             {service}
+            {warnMessage}
             {spiner}
             {list}  
             {pagination}

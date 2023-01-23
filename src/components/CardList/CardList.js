@@ -5,9 +5,8 @@ import Card from "../Card/Card";
 export default class CardList extends Component{
 
     render(){
-
         const { data, getGenre } = this.props;
-
+  
         const elements = data.map((item) => {
         
         const {id} = item;

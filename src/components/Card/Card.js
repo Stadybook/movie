@@ -1,10 +1,8 @@
 import React, { Component } from "react";
 import CuttingFn from "../CuttingFn/CuttingFn";
 import './Card.css';
-import { Image } from 'antd';
-import { format} from 'date-fns'
-import { Typography } from 'antd';
-import { Rate } from 'antd';
+import { Image, Rate, Typography } from 'antd';
+import { format } from 'date-fns'
 const { Title, Paragraph, Text } = Typography;
 //import PropTypes from 'prop-types';
 
@@ -60,7 +58,7 @@ export default class Card extends Component  {
               {title}
               </Title>
             <span className="card__date">{releaseDate} </span><br/>
-           <div className="card__genres">{filmGenres}</div>
+            <div className="card__genres">{filmGenres}</div>
             <Paragraph className="card__plot">{plot}</Paragraph>
           </Typography>
           <Rate className='card__stars' count={10} defaultValue='0' />

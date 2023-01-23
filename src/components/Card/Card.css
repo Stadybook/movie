@@ -10,6 +10,9 @@
     padding-right: 45px;
     font-weight: 400;  
 }
+.ant-typography h4 {
+    margin-bottom: 0;
+ }
 
 .card__photo{
     width: 183px;
@@ -43,16 +46,18 @@
     margin-bottom: 7px;
 }
 
-.card__description .card__genres {
+.card__genres {
     display: flex;
     gap:10px;
     flex-wrap: wrap;
-    color: black;
+    max-height: 24px;
+    overflow: hidden;
    
 }
 
 kbd{
  color: black;
+
   
 }
 
