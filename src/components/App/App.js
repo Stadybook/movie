@@ -16,6 +16,7 @@ export default class App extends Component{
           movieData : [],
           loading: true,
           notFound:false,
+          RenderError:false,
           error: false,
           totalPages: 0,
           pageNumber: 1,
@@ -38,6 +39,12 @@ export default class App extends Component{
         if(this.state.inputValue !== inputValue || this.state.pageNumber !== pageNumber){
           this.updateSearch()
         }
+      }
+
+      componentDidCatch(error, info){
+        this.setState({
+          RenderError:true
+        })
       }
 
       updateSearch(){
@@ -140,25 +147,30 @@ export default class App extends Component{
         event.target.classList.add('active');
 
       }
-        makeQuery = (query) => {
+
+      makeQuery = (query) => {
           this.setState({
             inputValue: query,
             loading: true,
           });
       };
 
-    pageChanging = (page) => {
-      this.setState({
-        pageNumber: page,
-        loading: true,
-      })
-    }
+      pageChanging = (page) => {
+        this.setState({
+          pageNumber: page,
+          loading: true,
+        })
+      }
 
 
     render(){
+      if(this.state.RenderError){
+        return <Error />
+      }
+
       const {movieData, notFound, pageNumber, totalPages, loading, error} = this.state;
 
-      const pagination = (totalPages > 1 && !loading) ? (
+      const pagination = (totalPages >= 2 && !loading) ? (
         <Pagination 
         className="pagination" 
         defaultCurrent={1} 
@@ -205,6 +217,7 @@ export default class App extends Component{
             />
             
             </React.Fragment>) : null;
+
         
         return(
             <section className="container" >

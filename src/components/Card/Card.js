@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import CuttingFn from "../CuttingFn/CuttingFn";
+import Error from "../ErrorHanding";
 import './Card.css';
 import { Image, Rate, Typography } from 'antd';
 import { format } from 'date-fns'
@@ -8,11 +9,26 @@ const { Title, Paragraph, Text } = Typography;
 
 export default class Card extends Component  {
 
+  state={
+    reactError:false
+  }
+
+  componentDidCatch(error, info){
+    this.setState({
+      reactError:true
+    })
+  }
+
   render(){
+
+    if(this.state.reactError){
+      return <Error />
+    }
 
     const {getGenre, id,title, genre_ids ,overview,backdrop_path, release_date,vote_average} = this.props;
     const releaseDate = release_date ? format(new Date(release_date), 'MMMM dd, yyyy') : 'no release date';
     const photoURL = 'https://image.tmdb.org/t/p/w500'
+    
     const src = backdrop_path ? `${photoURL}${backdrop_path}` : 'https://place-hold.it/280x1000/e1eaf1/000/c8c7f7?text=No poster';
     const genres = getGenre(genre_ids)
   
