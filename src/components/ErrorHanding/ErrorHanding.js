@@ -5,7 +5,7 @@ import './ErrorHanding.css'
 function Error (){ 
     return(
       <React.Fragment>
-         <Space  direction="vertical" style={{ width: '50%', margin:'0 80vh' }}>
+         <Space  direction="vertical" style={{ width: '100%'}}>
          <Alert
             className="error-alert"
             message="Error"

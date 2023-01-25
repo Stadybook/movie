@@ -6,39 +6,45 @@ import Spiner from "../Spiner";
 import Error from "../ErrorHanding";
 import SearchFunction from "../Search/Search";
 import { Pagination } from 'antd';
-
-
-
+import Buttons from "../Buttons";
 
 export default class App extends Component{
         state = {
           inputValue: '',
           movieData : [],
+          //ratedMovie: [],
           loading: true,
           notFound:false,
           RenderError:false,
           error: false,
           totalPages: 0,
           pageNumber: 1,
-          genresData:[]
+          genresData:[],
+          button:'Search',
+          sessionId:''
         };  
     
-        getFilms = new Service();
-
+        getInfo = new Service();
 
       componentDidMount(){
         const { pageNumber } = this.state;
         this.allFillmGenres();
         this.showPopularFilms(pageNumber);
+        this.createGuestSession()
 
       }
 
       componentDidUpdate(prevProps,prevState){
-        const { inputValue } = prevState
-        const { pageNumber } = prevState
+        console.log('componentDidUpdate')
+        const { inputValue ,  button, pageNumber} = prevState
         if(this.state.inputValue !== inputValue || this.state.pageNumber !== pageNumber){
           this.updateSearch()
         }
+        if(this.state.button !== button){
+          this.changeButton()
+          //this.updateSearch()
+        }
+
       }
 
       componentDidCatch(error, info){
@@ -52,18 +58,32 @@ export default class App extends Component{
         if(inputValue === ''){
           return this.showPopularFilms()
         }
-        this.showFilms()
+    
+        this.showFilms();
+
+      }
+
+      changeButton = () => {
+        const { button } = this.state;
+        if(button === 'Search'){
+          this.showFilms()
+        }
+        if(button === 'Rated'){
+          this.showRatedMovie()
+        }
       }
 
       showFilms(){  
-        const { pageNumber } = this.state;
+        const { pageNumber, button } = this.state;
         const { inputValue } = this.state;
-        
         if(inputValue === ''){
           this.showPopularFilms()
         }
+        else if( button === 'Rated'){
+          this.showRatedMovie()
+        }
         else{
-          this.getFilms
+          this.getInfo
             .getRequestFilms(inputValue,pageNumber )
               .then((body) =>{
                 this.setState({
@@ -86,7 +106,7 @@ export default class App extends Component{
 
       showPopularFilms(){
         const { pageNumber } = this.state;
-        this.getFilms
+        this.getInfo
         .getPopularFilms(pageNumber)
             .then((body) => {
               this.setState({
@@ -101,8 +121,25 @@ export default class App extends Component{
             .catch(this.onError);
         }
 
+        showRatedMovie = () => {
+          const { sessionId } = this.state;
+          console.log(sessionId)
+          this.getInfo
+            .getFilmRate(sessionId)
+              .then((body) => {
+                this.setState({
+                  loading:false,
+                  error:false,
+                  notFound:false,
+                  movieData: body.results,
+                  totalPages: body.total_pages
+                })
+                console.log(body.results)
+              })
+        }
+
         allFillmGenres = () => {
-          this.getFilms
+          this.getInfo
            .getFilmGenre()
             .then((body) => {
             this.setState({
@@ -113,7 +150,7 @@ export default class App extends Component{
           .catch(this.onError);
         }
 
-        getGenre= (ids) => {
+        getGenre = (ids) => {
           const filmGenres = [];
           const { genresData } = this.state;
           ids.forEach((genreId)=>{
@@ -134,25 +171,23 @@ export default class App extends Component{
         })
       }
 
-      handlerClick = (event) => {
-        const buttons = document.querySelectorAll(".toggle__button");
-        buttons.forEach(button => {
-         button.classList.remove('active');
-         });
-      
-        if (event.target.classList.contains('active')) {
-        return;
-        }
-    
-        event.target.classList.add('active');
-
-      }
+      onButtonChange = (btn) => {
+          this.setState(() =>{ 
+            return{
+              button:btn,
+              loading:true
+            }
+          }
+          )
+      };
 
       makeQuery = (query) => {
-          this.setState({
-            inputValue: query,
-            loading: true,
-          });
+        console.log(query)
+        this.setState({
+          inputValue: query,
+          loading: true,
+        });
+        
       };
 
       pageChanging = (page) => {
@@ -162,15 +197,36 @@ export default class App extends Component{
         })
       }
 
+      createGuestSession = () =>{
+        this.getInfo
+          .getGuestSessionId()
+          .then((body) => {
+              this.setState({
+                sessionId: body.guest_session_id,
+                loading:false
+              })
+              sessionStorage.setItem('sessionId',body.guest_session_id )
+          })
+          .catch(this.onError);
+      }
+
+      postFilmRate = (movieId, sessionId, rating) => {
+        this.getInfo
+          .postFilmRate(movieId, sessionId, rating)
+            .then((body) => {
+                console.log('Success')
+            })
+          // console.log(this.state.sessionId)
+      }
 
     render(){
       if(this.state.RenderError){
         return <Error />
       }
 
-      const {movieData, notFound, pageNumber, totalPages, loading, error} = this.state;
+      const {movieData,sessionId, button,notFound, pageNumber, totalPages, loading, error} = this.state;
 
-      const pagination = (totalPages >= 2 && !loading) ? (
+      const pagination = (totalPages >= 2 && !loading && !error) ? (
         <Pagination 
         className="pagination" 
         defaultCurrent={1} 
@@ -182,47 +238,31 @@ export default class App extends Component{
         />
       ): null;
 
-      const hasData = !(error && loading && notFound);
+
+      const hasData = !(error || loading || notFound);
       const warnMessage = notFound ? (<span className="warn-text">No results for your search</span>) : null; 
       const errorMessage = error ? <Error /> : null; 
       const spiner = loading && !error ? <Spiner /> : null; 
-      const service = !error ? (
-      <React.Fragment>
-      <div className="toggle">
-      <button 
-        type='button'
-        className='toggle__button active'
-        onClick={this.handlerClick}
-      >
-      Search
-      </button>
-      <button 
-        type='button'
-        className='toggle__button'
-        onClick={this.handlerClick}
-      >
-      Rated
-      </button>
-    </div>
-    <SearchFunction 
-      makeQuery={this.makeQuery}
-    />
-    </React.Fragment>) : null;
+      const buttons = !error  ? (<Buttons onButtonChange={this.onButtonChange} />) : null;
+      const search = !(error || button === 'Rated') ? (<SearchFunction makeQuery={this.makeQuery} />) : null;
+
 
       const list = hasData ? ( 
             <React.Fragment>
             <CardList 
               data={movieData}
               getGenre={this.getGenre}
+              postFilmRate={this.postFilmRate}
+              sessionId={sessionId}
             />
-            
             </React.Fragment>) : null;
 
         
         return(
             <section className="container" >
             {errorMessage}
-            {service}
+            {buttons}
+            {search}
             {warnMessage}
             {spiner}
             {list}  

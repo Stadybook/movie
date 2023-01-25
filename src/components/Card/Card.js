@@ -2,18 +2,19 @@ import React, { Component } from "react";
 import CuttingFn from "../CuttingFn/CuttingFn";
 import Error from "../ErrorHanding";
 import './Card.css';
-import { Image, Rate, Typography } from 'antd';
+import { Image, Typography } from 'antd';
 import { format } from 'date-fns'
+import FilmRating from "../FilmRating";
 const { Title, Paragraph, Text } = Typography;
 //import PropTypes from 'prop-types';
 
 export default class Card extends Component  {
 
   state={
-    reactError:false
+    reactError:false,
   }
 
-  componentDidCatch(error, info){
+  componentDidCatch = (error, info) =>{
     this.setState({
       reactError:true
     })
@@ -25,7 +26,7 @@ export default class Card extends Component  {
       return <Error />
     }
 
-    const {getGenre, id,title, genre_ids ,overview,backdrop_path, release_date,vote_average} = this.props;
+    const {getGenre,postFilmRate,sessionId, id,title, genre_ids ,overview,backdrop_path, release_date,vote_average} = this.props;
     const releaseDate = release_date ? format(new Date(release_date), 'MMMM dd, yyyy') : 'no release date';
     const photoURL = 'https://image.tmdb.org/t/p/w500'
     
@@ -47,15 +48,18 @@ export default class Card extends Component  {
 
     const mark = Number(vote_average);
     let colorBorder;
-    if(5 < mark && mark < 7) {
-      colorBorder = '#E9D100';
+    if(0 <= mark && mark <= 3){
+      colorBorder = '#E90000';
     }
-    else if(mark >= 7){
-      colorBorder = '#008000';
+    else if(3 < mark && mark < 5) {
+      colorBorder = '#E97E00';
+    }
+    else if(5 <= mark && mark < 7){
+      colorBorder = '#E9D100';
 
     }
     else{
-      colorBorder='#b41212'
+      colorBorder='#66E900'
     }
     
       return (
@@ -63,7 +67,6 @@ export default class Card extends Component  {
           <Image className="card__photo"
           width={1000}
           height={280}
-          
           src={src}  alt="movie-zphoto"
         />
         <div className="card__info">
@@ -77,7 +80,7 @@ export default class Card extends Component  {
             <div className="card__genres">{filmGenres}</div>
             <Paragraph className="card__plot">{plot}</Paragraph>
           </Typography>
-          <Rate className='card__stars' count={10} defaultValue='0' />
+          <FilmRating className='card__stars' id={id} sessionId={sessionId} postFilmRate={(id, sessionId, e) => postFilmRate(id, sessionId, e)}/>
           </div>
           <span style={{borderColor:`${colorBorder}`}} className="card__mark">{vote_average}</span>
         </li>

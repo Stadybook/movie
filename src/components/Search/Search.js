@@ -8,7 +8,7 @@ export default class SearchFunction extends Component{
 
     searching = (e) => {
         const { makeQuery} = this.props;
-        let query = e.target.value.trim().replace(/ +/g, ' ');
+        let query = e.target.value.trim().replace(/ +/g, '');
         makeQuery(query);
     }
 

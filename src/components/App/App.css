@@ -48,24 +48,7 @@ button:active, button:focus {
   }
 
 
-.toggle{
-	display: flex;
-	justify-content: center;
-	gap:16px;
-}
 
-.toggle__button{
-	padding: 10px;
-	font-style: normal;
-	font-weight: 400;
-	font-size: 14px;
-	line-height: 22px;
-}
-
-.toggle__button.active{
-	color: #1890FF;
-	border-bottom: 3px #1890FF solid;
-}
 
 .pagination{
 	justify-content: center;
