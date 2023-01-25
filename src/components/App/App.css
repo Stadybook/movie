@@ -58,6 +58,7 @@ button:active, button:focus {
 }
 
 .warn-text{
+	margin-top: 20px;
 	display: block;
 	color: #1890FF;
 	font-size: 25px;

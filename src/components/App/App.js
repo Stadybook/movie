@@ -7,6 +7,7 @@ import Error from "../ErrorHanding";
 import SearchFunction from "../Search/Search";
 import { Pagination } from 'antd';
 import Buttons from "../Buttons";
+import { FilmGenreProvider } from "../FilmGenreContext";
 
 export default class App extends Component{
         state = {
@@ -35,7 +36,7 @@ export default class App extends Component{
       }
 
       componentDidUpdate(prevProps,prevState){
-        console.log('componentDidUpdate')
+        //console.log('componentDidUpdate')
         const { inputValue ,  button, pageNumber} = prevState
         if(this.state.inputValue !== inputValue || this.state.pageNumber !== pageNumber){
           this.updateSearch()
@@ -58,9 +59,8 @@ export default class App extends Component{
         if(inputValue === ''){
           return this.showPopularFilms()
         }
-    
-        this.showFilms();
 
+        this.showFilms();
       }
 
       changeButton = () => {
@@ -74,14 +74,12 @@ export default class App extends Component{
       }
 
       showFilms(){  
-        const { pageNumber, button } = this.state;
+        const { pageNumber } = this.state;
         const { inputValue } = this.state;
         if(inputValue === ''){
           this.showPopularFilms()
         }
-        else if( button === 'Rated'){
-          this.showRatedMovie()
-        }
+
         else{
           this.getInfo
             .getRequestFilms(inputValue,pageNumber )
@@ -123,7 +121,6 @@ export default class App extends Component{
 
         showRatedMovie = () => {
           const { sessionId } = this.state;
-          console.log(sessionId)
           this.getInfo
             .getFilmRate(sessionId)
               .then((body) => {
@@ -134,6 +131,11 @@ export default class App extends Component{
                   movieData: body.results,
                   totalPages: body.total_pages
                 })
+                if(body.results.length === 0){
+                  this.setState({
+                    notFound:true
+                  })
+                }
                 console.log(body.results)
               })
         }
@@ -182,7 +184,6 @@ export default class App extends Component{
       };
 
       makeQuery = (query) => {
-        console.log(query)
         this.setState({
           inputValue: query,
           loading: true,
@@ -201,11 +202,11 @@ export default class App extends Component{
         this.getInfo
           .getGuestSessionId()
           .then((body) => {
+            sessionStorage.setItem('sessionId',body.guest_session_id )
               this.setState({
-                sessionId: body.guest_session_id,
+                sessionId: sessionStorage.sessionId,
                 loading:false
               })
-              sessionStorage.setItem('sessionId',body.guest_session_id )
           })
           .catch(this.onError);
       }
@@ -251,7 +252,6 @@ export default class App extends Component{
             <React.Fragment>
             <CardList 
               data={movieData}
-              getGenre={this.getGenre}
               postFilmRate={this.postFilmRate}
               sessionId={sessionId}
             />
@@ -259,15 +259,18 @@ export default class App extends Component{
 
         
         return(
-            <section className="container" >
-            {errorMessage}
-            {buttons}
-            {search}
-            {warnMessage}
-            {spiner}
-            {list}  
-            {pagination}
-            </section>
+            <FilmGenreProvider value={this.getGenre}>
+              <section className="container" >
+                {errorMessage}
+                {buttons}
+                {search}
+                {warnMessage}
+                {spiner}
+                {list}  
+                {pagination}
+              </section>
+            </FilmGenreProvider>
+          
             )
     }
    

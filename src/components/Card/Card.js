@@ -2,10 +2,12 @@ import React, { Component } from "react";
 import CuttingFn from "../CuttingFn/CuttingFn";
 import Error from "../ErrorHanding";
 import './Card.css';
+import { FilmGenreConsumer } from "../FilmGenreContext";
 import { Image, Typography } from 'antd';
 import { format } from 'date-fns'
 import FilmRating from "../FilmRating";
 const { Title, Paragraph, Text } = Typography;
+
 //import PropTypes from 'prop-types';
 
 export default class Card extends Component  {
@@ -26,22 +28,27 @@ export default class Card extends Component  {
       return <Error />
     }
 
-    const {getGenre,postFilmRate,sessionId, id,title, genre_ids ,overview,backdrop_path, release_date,vote_average} = this.props;
+    const {postFilmRate,sessionId, id,title, genre_ids ,overview,backdrop_path, release_date,vote_average} = this.props;
     const releaseDate = release_date ? format(new Date(release_date), 'MMMM dd, yyyy') : 'no release date';
     const photoURL = 'https://image.tmdb.org/t/p/w500'
-    
     const src = backdrop_path ? `${photoURL}${backdrop_path}` : 'https://place-hold.it/280x1000/e1eaf1/000/c8c7f7?text=No poster';
-    const genres = getGenre(genre_ids)
-  
-    const filmGenres = (
-      <React.Fragment>
-      {genres.map((genre) => {
-        return (
-          <Text keyboard key={genre} className='text'>{genre}</Text> 
-        );
-      })}
-      </React.Fragment>
-    )
+    const filmGenres = 
+    <FilmGenreConsumer>
+       {
+         (getGenre) => {
+          return (
+              <React.Fragment>
+              {getGenre(genre_ids).map((genre) => {
+              return (
+                  <Text keyboard key={genre} className='text'>{genre}</Text> 
+                );
+              })}
+             </React.Fragment> 
+          )
+        }
+      }
+               
+    </FilmGenreConsumer>
 
     const plot = overview ? CuttingFn(overview,180) : 'No overview';
     
