@@ -12,7 +12,7 @@ export default class Service{
     };
 
     getPopularFilms = async (pageNumber) => {
-        const url = `${baseURL}movie/popular?api_key=${apiKey}&language=en-US&page=${pageNumber}`;
+        const url = `${baseURL}movie/popular?api_key=${apiKey}&language=en-US&page=${pageNumber}`; 
         const body = await this.getResource(url);
      
         return body;

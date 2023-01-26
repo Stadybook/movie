@@ -1,45 +1,25 @@
 .card{
     position: relative;
-    display: flex;
-    flex-direction: row;
     width: 454px;
     height: 281px;
 
 }
 .card__description .card__title{
-    padding-right: 45px;
     font-weight: 400;  
 }
+
 .ant-typography h4 {
     margin-bottom: 0;
  }
-
-.card__photo{
-    width: 183px;
-    height: 281px;
-    object-fit: none;
-
-}
 
 .card__date, .card__plot{
     font-weight: 400;
     font-size: 12px;
 }
 
-.card__plot{
-    height: 129px;
-   
-    margin-top: 7px;
-  
-}
-
-.card__info{
-    padding: 12px 0 0 20px;
-}
 .card__description{
     height: 235px; 
     overflow: hidden;
-  
 }
 
 .card__date{
@@ -50,15 +30,11 @@
     display: flex;
     gap:10px;
     flex-wrap: wrap;
-    max-height: 24px;
-    overflow: hidden;
-   
+    max-height: 30px;
+    overflow: hidden;  
 }
-
 kbd{
  color: black;
-
-  
 }
 
 .card__stars{
@@ -78,57 +54,58 @@ kbd{
 
 }
 
-
-
-p{
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 22px;
-}
-/*
-
-.card{
-    display: flex;
-    flex-direction: row;
-    width: 454px;
-    height: 281px;
-
+.ant-image .ant-image-img{
+    width:  100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-.card__description{
-    height: 281px;
-    display: grid;
-   
-    grid-template-areas: 'title mark' 
-                         'date date' 
-                          'genre genre' 
-                        'description description' 
-                         'stars stars' ;
-    grid-template-rows:  28px 22px 20px 29px 46px;
-     grid-template-columns: 1fr 30px;
+@media (max-width: 700px ) {
+    .card__info{
+        display: flex;
+        flex-direction: column;
+    }
+    .ant-image{
+     position: absolute;
+      height: 91px;
+      width: 60px;  
+      left:10px;
+      top:6px;
+    }
+    .ant-typography h4 , .card__date, .card__genres{
+       padding:  7px 45px  0 80px;
+    }
+
+    .card__plot{
+        padding:  21px 10px 0px 10px;
+      
+    }
+    .card__stars{
+        margin-left: auto;
+    }  
 }
 
-.card__photo{
-    width: 183px;
-    height: 281px;
+@media (min-width: 701px ) {
+    .card__info{
+        display: flex;
+        flex-direction: column;
+    }
+    .ant-image{
+     position: absolute;
+      height: 280px;
+      width: 181px;  
+    }
+    .card__info{
+       padding:  7px 10px  0 201px;
+    }
+    .card__title{
+        padding-right: 45px;
+    }
+
+    
 }
-.card__title{
-    grid-area: 'title';
-}
-.card__date{
-    grid-area: 'date';
-}
-.card__genre{
-    grid-area: 'genre';
-}
-.card__plot{
-    grid-area:'description' ;
-}
-.card__stars{
-    grid-area: 'stars';
-    width: 239px;
-    height: 46px;
-    font-size: 16px;
-}*/
+
+
+
+
+
