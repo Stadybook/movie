@@ -1,27 +1,37 @@
 import React, { Component } from "react";
 import {Rate } from 'antd';
 import './FilmRating.css';
+import Service from "../../services/Servic";
+
+
 
 export default class FilmRating extends Component{ 
     state={
-        id: this.props.id,
-        stars:0
-      }
-    
-      onChange = (e) => {
-        const { id, postFilmRate, sessionId } = this.props
-        this.setState({
-          stars: e
-        })
+        stars: 0
+    }
 
-        postFilmRate(id, sessionId, e)
-       // localStorage.setItem('rating', e)
-      }
+    getFn = new Service();
+       
+    onChange = (e) => {
+        const { id, sessionId } = this.props
+        sessionStorage.setItem(id, e)
+            this.setState({
+                stars: e,
+            })
+           
+        this.getFn
+            .postFilmRate(id, sessionId, e) 
+    }
 
     render(){
-        const { stars } =this.state;
+        //sessionStorage.clear()
+        const { id } = this.props
         return(
-            <Rate className='card__stars' count={10} defaultValue='0' onChange={this.onChange} value={stars}/>
+            <Rate className='card__stars' 
+            count={10} 
+            defaultValue='0' 
+            onChange={this.onChange} 
+            value={sessionStorage.getItem(`${id}`)}/>
         )
     }
 }

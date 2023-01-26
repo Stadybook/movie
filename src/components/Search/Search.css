@@ -9,7 +9,7 @@
 	width: 938px;
 	border: 1px solid #D9D9D9;
 	border-radius: 4px;
-	margin: 20px 0 32px 0;
+	margin-bottom: 32px;
 }
 
 .search__placeholder:focus, .search__placeholder:hover{

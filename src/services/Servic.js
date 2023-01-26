@@ -1,11 +1,10 @@
-
 const apiKey = '1c69cefe62ed9734e109dd76f6bc4f93'
 const baseURL = `https://api.themoviedb.org/3/`
 export default class Service{
     async getResource(url) {
         const res = await fetch(url);
         if(!res.ok){
-            throw new Error('invalid', res.status)
+            throw new Error('invalid responce', res.status)
         }
         const body = await res.json();
         return body;
@@ -56,8 +55,8 @@ export default class Service{
 
     }
 
-    getFilmRate = async (sessionId) => {
-        const url = `${baseURL}guest_session/${sessionId}/rated/movies?api_key=${apiKey}&language=en-US&sort_by=created_at.asc`
+    getFilmRate = async (sessionId,pageNumber) => {
+        const url = `${baseURL}guest_session/${sessionId}/rated/movies?api_key=${apiKey}&language=en-US&sort_by=created_at.asc&page=${pageNumber}`
         const body = await this.getResource(url)
         return body;
     }

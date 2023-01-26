@@ -28,10 +28,11 @@ export default class Card extends Component  {
       return <Error />
     }
 
-    const {postFilmRate,sessionId, id,title, genre_ids ,overview,backdrop_path, release_date,vote_average} = this.props;
+    const {sessionId, id,title, genre_ids ,overview,backdrop_path, release_date,vote_average} = this.props;
     const releaseDate = release_date ? format(new Date(release_date), 'MMMM dd, yyyy') : 'no release date';
     const photoURL = 'https://image.tmdb.org/t/p/original' // `https://image.tmdb.org/t/p/w500
     const src = backdrop_path ? `${photoURL}${backdrop_path}` : 'https://place-hold.it/280x1000/e1eaf1/000/c8c7f7?text=No poster';
+    const vote = (Math.floor(vote_average*10)) /10
     const filmGenres = 
     <FilmGenreConsumer>
        {
@@ -86,9 +87,9 @@ export default class Card extends Component  {
           <div className="card__genres">{filmGenres}</div>
           <Paragraph className="card__plot">{plot}</Paragraph>
         </Typography>
-        <FilmRating className='card__stars' id={id} sessionId={sessionId} postFilmRate={(id, sessionId, e) => postFilmRate(id, sessionId, e)}/>
+        <FilmRating className='card__stars' id={id} sessionId={sessionId} />
         </div>
-        <span style={{borderColor:`${colorBorder}`}} className="card__mark">{vote_average}</span>
+        <span style={{borderColor:`${colorBorder}`}} className="card__mark">{vote}</span>
       </li>
       );
   }

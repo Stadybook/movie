@@ -9,11 +9,12 @@ import { Pagination } from 'antd';
 import Buttons from "../Buttons";
 import { FilmGenreProvider } from "../FilmGenreContext";
 
+
 export default class App extends Component{
         state = {
           inputValue: '',
           movieData : [],
-          //ratedMovie: [],
+          ratedMovie: [],
           loading: true,
           notFound:false,
           RenderError:false,
@@ -36,14 +37,12 @@ export default class App extends Component{
       }
 
       componentDidUpdate(prevProps,prevState){
-        //console.log('componentDidUpdate')
         const { inputValue ,  button, pageNumber} = prevState
         if(this.state.inputValue !== inputValue || this.state.pageNumber !== pageNumber){
           this.updateSearch()
         }
         if(this.state.button !== button){
           this.changeButton()
-          //this.updateSearch()
         }
 
       }
@@ -64,6 +63,9 @@ export default class App extends Component{
       }
 
       changeButton = () => {
+        this.setState({
+          notFound:false
+        })
         const { button } = this.state;
         if(button === 'Search'){
           this.showFilms()
@@ -120,15 +122,16 @@ export default class App extends Component{
         }
 
         showRatedMovie = () => {
-          const { sessionId } = this.state;
+          const { sessionId, pageNumber } = this.state;
           this.getInfo
-            .getFilmRate(sessionId)
+            .getFilmRate(sessionId, pageNumber)
               .then((body) => {
                 this.setState({
                   loading:false,
                   error:false,
                   notFound:false,
-                  movieData: body.results,
+                  pageNumber,
+                  ratedMovie: body.results,
                   totalPages: body.total_pages
                 })
                 if(body.results.length === 0){
@@ -136,7 +139,6 @@ export default class App extends Component{
                     notFound:true
                   })
                 }
-                console.log(body.results)
               })
         }
 
@@ -177,6 +179,7 @@ export default class App extends Component{
           this.setState(() =>{ 
             return{
               button:btn,
+              pageNumber:1,
               loading:true
             }
           }
@@ -211,21 +214,12 @@ export default class App extends Component{
           .catch(this.onError);
       }
 
-      postFilmRate = (movieId, sessionId, rating) => {
-        this.getInfo
-          .postFilmRate(movieId, sessionId, rating)
-            .then((body) => {
-                console.log('Success')
-            })
-          // console.log(this.state.sessionId)
-      }
-
     render(){
       if(this.state.RenderError){
         return <Error />
       }
 
-      const {movieData,sessionId, button,notFound, pageNumber, totalPages, loading, error} = this.state;
+      const {movieData,ratedMovie,sessionId, button,notFound, pageNumber, totalPages, loading, error} = this.state;
 
       const pagination = (totalPages >= 2 && !loading && !error) ? (
         <Pagination 
@@ -246,13 +240,12 @@ export default class App extends Component{
       const spiner = loading && !error ? <Spiner /> : null; 
       const buttons = !error  ? (<Buttons onButtonChange={this.onButtonChange} />) : null;
       const search = !(error || button === 'Rated') ? (<SearchFunction makeQuery={this.makeQuery} />) : null;
-
+      const dataForShow =  button === 'Rated' ? ratedMovie : movieData;
 
       const list = hasData ? ( 
             <React.Fragment>
             <CardList 
-              data={movieData}
-              postFilmRate={this.postFilmRate}
+              data={dataForShow}
               sessionId={sessionId}
             />
             </React.Fragment>) : null;
@@ -260,6 +253,7 @@ export default class App extends Component{
         
         return(
             <FilmGenreProvider value={this.getGenre}>
+
               <section className="container" >
                 {errorMessage}
                 {buttons}
@@ -269,6 +263,7 @@ export default class App extends Component{
                 {list}  
                 {pagination}
               </section>
+
             </FilmGenreProvider>
           
             )
