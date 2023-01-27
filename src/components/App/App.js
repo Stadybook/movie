@@ -19,7 +19,7 @@ export default class App extends Component{
           notFound:false,
           RenderError:false,
           error: false,
-          totalPages: 0,
+          totalPages: 1,
           pageNumber: 1,
           genresData:[],
           button:'Search',
@@ -29,6 +29,7 @@ export default class App extends Component{
         getInfo = new Service();
 
       componentDidMount(){
+        //sessionStorage.clear()
         const { pageNumber } = this.state;
         this.allFillmGenres();
         this.showPopularFilms(pageNumber);
@@ -42,7 +43,7 @@ export default class App extends Component{
           this.updateSearch()
         }
         if(this.state.button !== button){
-          this.changeButton()
+          this.togglePage()
         }
 
       }
@@ -54,17 +55,17 @@ export default class App extends Component{
       }
 
       updateSearch(){
-        const {inputValue} = this.state;
-        if(inputValue === ''){
+        const {inputValue, button} = this.state;
+        if(inputValue === '' && button === 'Search'){
           return this.showPopularFilms()
         }
-
         this.showFilms();
       }
 
-      changeButton = () => {
+      togglePage = () => {
         this.setState({
-          notFound:false
+          notFound:false,
+          pageNumber: 1
         })
         const { button } = this.state;
         if(button === 'Search'){
@@ -76,12 +77,13 @@ export default class App extends Component{
       }
 
       showFilms(){  
-        const { pageNumber } = this.state;
-        const { inputValue } = this.state;
+        const { pageNumber,  inputValue, button  } = this.state;
         if(inputValue === ''){
           this.showPopularFilms()
         }
-
+        else if(button === 'Rated'){
+          this.showRatedMovie()
+        }
         else{
           this.getInfo
             .getRequestFilms(inputValue,pageNumber )
@@ -122,24 +124,26 @@ export default class App extends Component{
         }
 
         showRatedMovie = () => {
-          const { sessionId, pageNumber } = this.state;
+          const { sessionId, pageNumber} = this.state;
           this.getInfo
-            .getFilmRate(sessionId, pageNumber)
+            .getFilmRate(sessionId)
               .then((body) => {
                 this.setState({
                   loading:false,
                   error:false,
                   notFound:false,
-                  pageNumber,
                   ratedMovie: body.results,
-                  totalPages: body.total_pages
-                })
+                  totalPages: body.total_pages,
+                  pageNumber
+                }, () => console.log(this.state.pageNumber))
+                
                 if(body.results.length === 0){
                   this.setState({
                     notFound:true
                   })
                 }
-              })
+              }) 
+              .catch(this.onError);
         }
 
         allFillmGenres = () => {
@@ -189,6 +193,7 @@ export default class App extends Component{
       makeQuery = (query) => {
         this.setState({
           inputValue: query,
+          pageNumber:1,
           loading: true,
         });
         
@@ -232,7 +237,6 @@ export default class App extends Component{
         onChange={this.pageChanging}
         />
       ): null;
-
 
       const hasData = !(error || loading || notFound);
       const warnMessage = notFound ? (<span className="warn-text">No results for your search</span>) : null; 

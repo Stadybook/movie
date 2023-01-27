@@ -55,8 +55,8 @@ export default class Service{
 
     }
 
-    getFilmRate = async (sessionId,pageNumber) => {
-        const url = `${baseURL}guest_session/${sessionId}/rated/movies?api_key=${apiKey}&language=en-US&sort_by=created_at.asc&page=${pageNumber}`
+    getFilmRate = async (sessionId ) => {
+        const url = `${baseURL}guest_session/${sessionId}/rated/movies?api_key=${apiKey}&language=en-US`
         const body = await this.getResource(url)
         return body;
     }
