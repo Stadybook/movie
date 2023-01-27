@@ -1,3 +1,3 @@
-import SearchFunction from "./Search";
+import SearchFunction from './Search';
 
 export default SearchFunction;

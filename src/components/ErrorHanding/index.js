@@ -1,3 +1,3 @@
-import Error from "./ErrorHanding";
+import Error from './ErrorHanding';
 
 export default Error;

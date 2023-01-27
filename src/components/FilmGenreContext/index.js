@@ -1,9 +1,3 @@
-import {
-    FilmGenreConsumer,
-    FilmGenreProvider
-} from './FilmGenreContext';
+import { FilmGenreConsumer, FilmGenreProvider } from './FilmGenreContext';
 
-export {
-    FilmGenreConsumer,
-    FilmGenreProvider
-}
+export { FilmGenreConsumer, FilmGenreProvider };

@@ -1,3 +1,3 @@
-import FilmRating from "./FilmRating";
+import FilmRating from './FilmRating';
 
 export default FilmRating;
