@@ -12,10 +12,7 @@
     margin-bottom: 0;
  }
 
-.card__date, .card__plot{
-    font-weight: 400;
-    font-size: 12px;
-}
+
 
 .card__description{
     height: 235px; 
@@ -61,6 +58,13 @@ kbd{
 }
 
 @media (max-width: 700px ) {
+    .card__date{
+        font-weight: 400;
+        font-size: 12px;
+    }
+    .card__plot{
+        font-size: 14px;
+    }
     .card__info{
         display: flex;
         flex-direction: column;
@@ -86,6 +90,10 @@ kbd{
 }
 
 @media (min-width: 701px ) {
+    .card__date, .card__plot{
+        font-weight: 400;
+        font-size: 12px;
+    }
     .card__info{
         display: flex;
         flex-direction: column;

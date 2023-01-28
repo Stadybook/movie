@@ -17,7 +17,6 @@ export default class App extends Component {
         this.state = {
             inputValue: '',
             movieData: [],
-            ratedMovie: [],
             loading: true,
             notFound: false,
             RenderError: false,
@@ -147,17 +146,14 @@ export default class App extends Component {
         this.getInfo
             .getFilmRate(sessionId)
             .then((body) => {
-                this.setState(
-                    {
-                        loading: false,
-                        error: false,
-                        notFound: false,
-                        ratedMovie: body.results,
-                        totalPages: body.total_pages,
-                        pageNumber,
-                    }
-                    // () => console.log(this.state.pageNumber)
-                );
+                this.setState({
+                    loading: false,
+                    error: false,
+                    notFound: false,
+                    movieData: body.results,
+                    totalPages: body.total_pages,
+                    pageNumber,
+                });
 
                 if (body.results.length === 0) {
                     this.setState({
@@ -229,7 +225,6 @@ export default class App extends Component {
 
         const {
             movieData,
-            ratedMovie,
             sessionId,
             button,
             notFound,
@@ -245,7 +240,7 @@ export default class App extends Component {
                     className='pagination'
                     defaultCurrent={1}
                     current={pageNumber}
-                    total={totalPages}
+                    total={Math.ceil(totalPages / 10)}
                     showSizeChanger={false}
                     disabled={false}
                     onChange={this.pageChanging}
@@ -264,10 +259,9 @@ export default class App extends Component {
         const search = !(error || button === 'Rated') ? (
             <SearchFunction makeQuery={this.makeQuery} />
         ) : null;
-        const dataForShow = button === 'Rated' ? ratedMovie : movieData;
 
         const list = hasData ? (
-            <CardList data={dataForShow} sessionId={sessionId} />
+            <CardList data={movieData} sessionId={sessionId} />
         ) : null;
 
         return (

@@ -17,16 +17,16 @@ export default class FilmRating extends Component {
 
     onChange = (e) => {
         const { id, sessionId } = this.props;
+        // const { stars } = this.state;
         sessionStorage.setItem(id, e);
         this.setState({
             stars: e,
         });
-
         this.getFn.postFilmRate(id, sessionId, e);
     };
 
     render() {
-        // sessionStorage.clear()
+    // sessionStorage.clear()
         const { id } = this.props;
         return (
             <Rate

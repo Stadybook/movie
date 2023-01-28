@@ -1,7 +1,7 @@
+/* eslint-disable class-methods-use-this */
 const apiKey = '1c69cefe62ed9734e109dd76f6bc4f93';
 const baseURL = 'https://api.themoviedb.org/3/';
 export default class Service {
-    // eslint-disable-next-line class-methods-use-this
     async getResource(url) {
         const res = await fetch(url);
         if (!res.ok) {
@@ -14,7 +14,6 @@ export default class Service {
     getPopularFilms = async (pageNumber) => {
         const url = `${baseURL}movie/popular?api_key=${apiKey}&language=en-US&page=${pageNumber}`;
         const body = await this.getResource(url);
-
         return body;
     };
 
@@ -37,7 +36,6 @@ export default class Service {
         return body;
     };
 
-    // eslint-disable-next-line class-methods-use-this
     postFilmRate = async (movieId, sessionId, rating) => {
         const url = `https://api.themoviedb.org/3/movie/${movieId}/rating?api_key=${apiKey}&guest_session_id=${sessionId}`;
 
@@ -50,7 +48,7 @@ export default class Service {
                 value: rating,
             }),
         }).catch((err) => {
-            throw new Error('unsuccussed fetch request', err.message);
+            throw new Error('unsuccessful fetch request', err.message);
         });
     };
 

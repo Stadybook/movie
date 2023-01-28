@@ -43,7 +43,7 @@ export default class Card extends Component {
         const releaseDate = releasDate
             ? format(new Date(releasDate), 'MMMM dd, yyyy')
             : 'no release date';
-        const photoURL = 'https://image.tmdb.org/t/p/original'; // `https://image.tmdb.org/t/p/w500
+        const photoURL = 'https://image.tmdb.org/t/p/original';
         const src = backdropPath
             ? `${photoURL}${backdropPath}`
             : 'https://place-hold.it/280x1000/e1eaf1/000/c8c7f7?text=No poster';
@@ -66,7 +66,7 @@ export default class Card extends Component {
             </FilmGenreConsumer>
         );
 
-        const plot = overview ? CuttingFn(overview, 180) : 'No overview';
+        const plot = overview ? CuttingFn(overview, 200) : 'No overview';
 
         const mark = Number(voteAverage);
         let colorBorder;
