@@ -32,7 +32,6 @@ export default class App extends Component {
     getInfo = new Service();
 
     componentDidMount() {
-        // sessionStorage.clear()
         const { pageNumber } = this.state;
         this.allFillmGenres();
         this.showPopularFilms(pageNumber);
@@ -65,7 +64,7 @@ export default class App extends Component {
         });
         const { button } = this.state;
         if (button === 'Search') {
-            this.showFilms();
+            this.showPopularFilms();
         }
         if (button === 'Rated') {
             this.showRatedMovie();
@@ -142,7 +141,7 @@ export default class App extends Component {
     };
 
     showRatedMovie = () => {
-        const { sessionId, pageNumber } = this.state;
+        const { sessionId } = this.state;
         this.getInfo
             .getFilmRate(sessionId)
             .then((body) => {
@@ -152,7 +151,6 @@ export default class App extends Component {
                     notFound: false,
                     movieData: body.results,
                     totalPages: body.total_pages,
-                    pageNumber,
                 });
 
                 if (body.results.length === 0) {
@@ -214,6 +212,7 @@ export default class App extends Component {
         if (inputValue === '' && button === 'Search') {
             return this.showPopularFilms();
         }
+
         return this.showFilms();
     }
 
@@ -252,7 +251,7 @@ export default class App extends Component {
             <span className='warn-text'>No results for your search</span>
         ) : null;
         const errorMessage = error ? <Error /> : null;
-        const spiner = loading && !error ? <Spiner /> : null;
+        const spiner = loading && !error && !notFound ? <Spiner /> : null;
         const buttons = !error ? (
             <Buttons onButtonChange={this.onButtonChange} />
         ) : null;

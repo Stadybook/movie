@@ -17,7 +17,6 @@ export default class FilmRating extends Component {
 
     onChange = (e) => {
         const { id, sessionId } = this.props;
-        // const { stars } = this.state;
         sessionStorage.setItem(id, e);
         this.setState({
             stars: e,
@@ -26,7 +25,6 @@ export default class FilmRating extends Component {
     };
 
     render() {
-    // sessionStorage.clear()
         const { id } = this.props;
         return (
             <Rate
