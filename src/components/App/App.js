@@ -35,7 +35,6 @@ export default class App extends Component {
     getInfo = new Service();
 
     componentDidMount() {
-        sessionStorage.clear();
         const { pageNumber } = this.state;
         this.allFillmGenres();
         this.showPopularFilms(pageNumber);
@@ -75,7 +74,6 @@ export default class App extends Component {
                 sessionStorage.setItem('sessionId', body.guest_session_id);
                 this.setState({
                     sessionId: sessionStorage.sessionId,
-                    loading: false,
                 });
             })
             .catch(this.onError);
@@ -124,12 +122,10 @@ export default class App extends Component {
         const films = body.results;
         const { movieData } = this.state;
         if (body.results.length === 0) {
-            this.setState(() => {
-                return {
-                    notFound: true,
-                    error: false,
-                    loading: false,
-                };
+            this.setState({
+                notFound: true,
+                error: false,
+                loading: false,
             });
         } else {
             this.setState(
@@ -149,7 +145,14 @@ export default class App extends Component {
 
     onRenderList = (films = this.state.movieData) => {
         const newRender = [];
-        if (films.length > 10) {
+        if (films.length > 20) {
+            for (let i = 20; i < 30; i++) {
+                newRender.push(films[i]);
+            }
+            this.setState({
+                renderList: newRender,
+            });
+        } else if (films.length > 10) {
             for (let i = 0; i < 10; i++) {
                 newRender.push(films[i]);
             }
@@ -166,23 +169,17 @@ export default class App extends Component {
     onPageChange = (page) => {
         const { movieData } = this.state;
         if (page % 2 !== 0) {
-            this.setState(
-                {
-                    movieData: [],
-                    pageNumber: page,
-                    loading: true,
-                },
-                () => this.onRenderList(movieData)
-            );
+            this.setState({
+                movieData: [],
+                pageNumber: page,
+                loading: true,
+            });
         } else if (page === 1) {
-            this.setState(
-                {
-                    movieData: [],
-                    pageNumber: page,
-                    loading: true,
-                },
-                () => this.onRenderList(movieData)
-            );
+            this.setState({
+                movieData: [],
+                pageNumber: page,
+                loading: true,
+            });
         } else {
             const newRender = [];
             for (let i = 10; i < 20; i++) {
@@ -194,6 +191,7 @@ export default class App extends Component {
                 loading: true,
             });
         }
+        this.onRenderList(movieData);
     };
 
     makeQuery = (query) => {
@@ -205,12 +203,10 @@ export default class App extends Component {
     };
 
     onButtonChange = (btn) => {
-        this.setState(() => {
-            return {
-                button: btn,
-                pageNumber: 1,
-                loading: true,
-            };
+        this.setState({
+            button: btn,
+            pageNumber: 1,
+            loading: true,
         });
     };
 
@@ -220,7 +216,6 @@ export default class App extends Component {
             .getFilmRate(sessionId)
             .then((body) => {
                 this.setState({
-                    loading: false,
                     error: false,
                     notFound: false,
                     renderList: body.results,
@@ -258,18 +253,9 @@ export default class App extends Component {
     updateSearch() {
         const { inputValue, button } = this.state;
         if (inputValue === '' && button === 'Search') {
-            this.setState(
-                () => {
-                    return {
-                        pageNumber: 1,
-                        movieData: [],
-                    };
-                },
-                () => this.showPopularFilms()
-            );
-        } else {
-            return this.showRequesFilm();
+            return this.showPopularFilms();
         }
+        return this.showRequesFilm();
     }
 
     render() {
@@ -280,6 +266,7 @@ export default class App extends Component {
 
         const {
             renderList,
+            movieData,
             sessionId,
             button,
             notFound,
@@ -290,7 +277,7 @@ export default class App extends Component {
         } = this.state;
 
         const pagination =
-            totalPages >= 2 && !loading && !error && !notFound ? (
+            movieData.length > 10 && !loading && !error && !notFound ? (
                 <Pagination
                     className='pagination'
                     defaultCurrent={1}

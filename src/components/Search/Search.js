@@ -22,7 +22,7 @@ export default class SearchFunction extends Component {
                 {
                     label: e.target.value,
                 },
-                debounce(this.searching, 800)
+                debounce(this.searching, 1000)
             );
         }
     };
