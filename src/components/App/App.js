@@ -1,7 +1,10 @@
+/* eslint-disable consistent-return */
 /* eslint-disable react/destructuring-assignment */
+/* eslint-disable no-plusplus */
 import React, { Component } from 'react';
 import { Pagination } from 'antd';
 
+import { FilmGenreProvider } from '../FilmGenreContext';
 import Service from '../../services/Servic';
 import CardList from '../CardList';
 import './App.css';
@@ -9,7 +12,6 @@ import Spiner from '../Spiner';
 import Error from '../ErrorHanding';
 import SearchFunction from '../Search/Search';
 import Buttons from '../Buttons';
-import { FilmGenreProvider } from '../FilmGenreContext';
 
 export default class App extends Component {
     constructor(props) {
@@ -26,12 +28,14 @@ export default class App extends Component {
             genresData: [],
             button: 'Search',
             sessionId: '',
+            renderList: [],
         };
     }
 
     getInfo = new Service();
 
     componentDidMount() {
+        sessionStorage.clear();
         const { pageNumber } = this.state;
         this.allFillmGenres();
         this.showPopularFilms(pageNumber);
@@ -57,18 +61,11 @@ export default class App extends Component {
         });
     }
 
-    togglePage = () => {
+    onError = () => {
         this.setState({
-            notFound: false,
-            pageNumber: 1,
+            error: true,
+            loading: false,
         });
-        const { button } = this.state;
-        if (button === 'Search') {
-            this.showPopularFilms();
-        }
-        if (button === 'Rated') {
-            this.showRatedMovie();
-        }
     };
 
     createGuestSession = () => {
@@ -82,38 +79,6 @@ export default class App extends Component {
                 });
             })
             .catch(this.onError);
-    };
-
-    pageChanging = (page) => {
-        this.setState({
-            pageNumber: page,
-            loading: true,
-        });
-    };
-
-    onError = () => {
-        this.setState({
-            error: true,
-            loading: false,
-        });
-    };
-
-    onButtonChange = (btn) => {
-        this.setState(() => {
-            return {
-                button: btn,
-                pageNumber: 1,
-                loading: true,
-            };
-        });
-    };
-
-    makeQuery = (query) => {
-        this.setState({
-            inputValue: query,
-            pageNumber: 1,
-            loading: true,
-        });
     };
 
     getGenre = (ids) => {
@@ -140,6 +105,115 @@ export default class App extends Component {
             .catch(this.onError);
     };
 
+    togglePage = () => {
+        this.setState({
+            notFound: false,
+            pageNumber: 1,
+            movieData: [],
+        });
+        const { button } = this.state;
+        if (button === 'Search') {
+            this.showPopularFilms();
+        }
+        if (button === 'Rated') {
+            this.showRatedMovie();
+        }
+    };
+
+    onFilmListItem = (body) => {
+        const films = body.results;
+        const { movieData } = this.state;
+        if (body.results.length === 0) {
+            this.setState(() => {
+                return {
+                    notFound: true,
+                    error: false,
+                    loading: false,
+                };
+            });
+        } else {
+            this.setState(
+                () => {
+                    return {
+                        movieData: [...movieData, ...films],
+                        loading: false,
+                        error: false,
+                        totalPages: body.total_pages,
+                        notFound: false,
+                    };
+                },
+                () => this.onRenderList(this.state.movieData)
+            );
+        }
+    };
+
+    onRenderList = (films = this.state.movieData) => {
+        const newRender = [];
+        if (films.length > 10) {
+            for (let i = 0; i < 10; i++) {
+                newRender.push(films[i]);
+            }
+            this.setState({
+                renderList: newRender,
+            });
+        } else {
+            this.setState({
+                renderList: films,
+            });
+        }
+    };
+
+    onPageChange = (page) => {
+        const { movieData } = this.state;
+        if (page % 2 !== 0) {
+            this.setState(
+                {
+                    movieData: [],
+                    pageNumber: page,
+                    loading: true,
+                },
+                () => this.onRenderList(movieData)
+            );
+        } else if (page === 1) {
+            this.setState(
+                {
+                    movieData: [],
+                    pageNumber: page,
+                    loading: true,
+                },
+                () => this.onRenderList(movieData)
+            );
+        } else {
+            const newRender = [];
+            for (let i = 10; i < 20; i++) {
+                newRender.push(movieData[i]);
+            }
+            this.setState({
+                movieData: newRender,
+                pageNumber: page,
+                loading: true,
+            });
+        }
+    };
+
+    makeQuery = (query) => {
+        this.setState({
+            inputValue: query,
+            pageNumber: 1,
+            loading: true,
+        });
+    };
+
+    onButtonChange = (btn) => {
+        this.setState(() => {
+            return {
+                button: btn,
+                pageNumber: 1,
+                loading: true,
+            };
+        });
+    };
+
     showRatedMovie = () => {
         const { sessionId } = this.state;
         this.getInfo
@@ -149,7 +223,7 @@ export default class App extends Component {
                     loading: false,
                     error: false,
                     notFound: false,
-                    movieData: body.results,
+                    renderList: body.results,
                     totalPages: body.total_pages,
                 });
 
@@ -162,58 +236,40 @@ export default class App extends Component {
             .catch(this.onError);
     };
 
+    showRequesFilm = () => {
+        const { inputValue, pageNumber } = this.state;
+        this.setState({
+            movieData: [],
+        });
+        this.getInfo
+            .getRequestFilms(inputValue, pageNumber)
+            .then((body) => this.onFilmListItem(body))
+            .catch(this.onError);
+    };
+
     showPopularFilms() {
         const { pageNumber } = this.state;
         this.getInfo
             .getPopularFilms(pageNumber)
-            .then((body) => {
-                this.setState({
-                    notFound: false,
-                    loading: false,
-                    error: false,
-                    movieData: body.results,
-                    totalPages: body.total_pages,
-                    pageNumber,
-                });
-            })
+            .then((body) => this.onFilmListItem(body))
             .catch(this.onError);
-    }
-
-    showFilms() {
-        const { pageNumber, inputValue, button } = this.state;
-        if (inputValue === '') {
-            this.showPopularFilms();
-        } else if (button === 'Rated') {
-            this.showRatedMovie();
-        } else {
-            this.getInfo
-                .getRequestFilms(inputValue, pageNumber)
-                .then((body) => {
-                    this.setState({
-                        loading: false,
-                        notFound: false,
-                        error: false,
-                        totalPages: body.total_pages,
-                        pageNumber,
-                        movieData: body.results,
-                    });
-                    if (body.results.length === 0) {
-                        this.setState({
-                            notFound: true,
-                        });
-                    }
-                })
-                .catch(this.onError);
-        }
     }
 
     updateSearch() {
         const { inputValue, button } = this.state;
         if (inputValue === '' && button === 'Search') {
-            return this.showPopularFilms();
+            this.setState(
+                () => {
+                    return {
+                        pageNumber: 1,
+                        movieData: [],
+                    };
+                },
+                () => this.showPopularFilms()
+            );
+        } else {
+            return this.showRequesFilm();
         }
-
-        return this.showFilms();
     }
 
     render() {
@@ -223,7 +279,7 @@ export default class App extends Component {
         }
 
         const {
-            movieData,
+            renderList,
             sessionId,
             button,
             notFound,
@@ -234,7 +290,7 @@ export default class App extends Component {
         } = this.state;
 
         const pagination =
-            totalPages >= 2 && !loading && !error ? (
+            totalPages >= 2 && !loading && !error && !notFound ? (
                 <Pagination
                     className='pagination'
                     defaultCurrent={1}
@@ -242,7 +298,7 @@ export default class App extends Component {
                     total={Math.ceil(totalPages / 10)}
                     showSizeChanger={false}
                     disabled={false}
-                    onChange={this.pageChanging}
+                    onChange={this.onPageChange}
                 />
             ) : null;
 
@@ -250,7 +306,7 @@ export default class App extends Component {
         const warnMessage = notFound ? (
             <span className='warn-text'>No results for your search</span>
         ) : null;
-        const errorMessage = error ? <Error /> : null;
+        const errorMessage = error && !notFound ? <Error /> : null;
         const spiner = loading && !error && !notFound ? <Spiner /> : null;
         const buttons = !error ? (
             <Buttons onButtonChange={this.onButtonChange} />
@@ -260,7 +316,7 @@ export default class App extends Component {
         ) : null;
 
         const list = hasData ? (
-            <CardList data={movieData} sessionId={sessionId} />
+            <CardList data={renderList} sessionId={sessionId} />
         ) : null;
 
         return (
