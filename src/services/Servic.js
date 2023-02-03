@@ -52,8 +52,8 @@ export default class Service {
         });
     };
 
-    getFilmRate = async (sessionId) => {
-        const url = `${baseURL}guest_session/${sessionId}/rated/movies?api_key=${apiKey}&language=en-US`;
+    getFilmRate = async (sessionId, pageNumber) => {
+        const url = `${baseURL}guest_session/${sessionId}/rated/movies?api_key=${apiKey}&page=${pageNumber}`;
         const body = await this.getResource(url);
         return body;
     };

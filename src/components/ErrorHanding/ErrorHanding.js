@@ -8,7 +8,7 @@ function Error() {
             <Alert
                 className='error-alert'
                 message='Error'
-                description='Somthing has gone wrong! Try to reloading the page or check your Internet connection.'
+                description='Somthing has gone wrong! We are already trying to fix this.'
                 type='error'
                 showIcon
             />

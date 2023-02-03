@@ -25,6 +25,7 @@ export default class FilmRating extends Component {
     };
 
     render() {
+        // sessionStorage.clear()
         const { id } = this.props;
         return (
             <Rate

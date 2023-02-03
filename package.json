@@ -57,22 +57,22 @@
     "husky": "^8.0.3",
     "lint-staged": "^13.1.0",
     "prettier": "^2.8.2"
-},
-"lint-staged": {
+  },
+  "lint-staged": {
     "*.js": [
-        "npm run lint:fix"
+      "npm run lint:fix"
     ]
-},
-"husky": {
+  },
+  "husky": {
     "pre-commit": "lint-staged"
-},
-"jest": {
+  },
+  "jest": {
     "transformIgnorePatterns": [
-        "/node_modules/(?!antd|@ant-design|rc-.+?|@babel/runtime).+(js|jsx)$"
+      "/node_modules/(?!antd|@ant-design|rc-.+?|@babel/runtime).+(js|jsx)$"
     ]
-},
-"description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
-"main": "index.js",
-"author": "",
-"license": "ISC"
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC"
 }

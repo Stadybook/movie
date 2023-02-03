@@ -1,9 +1,10 @@
-/* eslint-disable consistent-return */
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/destructuring-assignment */
-/* eslint-disable no-plusplus */
+
 import React, { Component } from 'react';
 import { Pagination } from 'antd';
 
+import DisconnectIndicator from '../DisconnectIndicator';
 import { FilmGenreProvider } from '../FilmGenreContext';
 import Service from '../../services/Servic';
 import CardList from '../CardList';
@@ -21,14 +22,13 @@ export default class App extends Component {
             movieData: [],
             loading: true,
             notFound: false,
-            RenderError: false,
+            renderError: false,
             error: false,
             totalPages: 1,
             pageNumber: 1,
             genresData: [],
             button: 'Search',
             sessionId: '',
-            renderList: [],
         };
     }
 
@@ -42,11 +42,8 @@ export default class App extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const { inputValue, button, pageNumber } = prevState;
-        if (
-            this.state.inputValue !== inputValue ||
-            this.state.pageNumber !== pageNumber
-        ) {
+        const { button, pageNumber } = prevState;
+        if (this.state.pageNumber !== pageNumber) {
             this.updateSearch();
         }
         if (this.state.button !== button) {
@@ -56,7 +53,7 @@ export default class App extends Component {
 
     componentDidCatch() {
         this.setState({
-            RenderError: true,
+            renderError: true,
         });
     }
 
@@ -120,7 +117,6 @@ export default class App extends Component {
 
     onFilmListItem = (body) => {
         const films = body.results;
-        const { movieData } = this.state;
         if (body.results.length === 0) {
             this.setState({
                 notFound: true,
@@ -128,78 +124,34 @@ export default class App extends Component {
                 loading: false,
             });
         } else {
-            this.setState(
-                () => {
-                    return {
-                        movieData: [...movieData, ...films],
-                        loading: false,
-                        error: false,
-                        totalPages: body.total_pages,
-                        notFound: false,
-                    };
-                },
-                () => this.onRenderList(this.state.movieData)
-            );
-        }
-    };
-
-    onRenderList = (films = this.state.movieData) => {
-        const newRender = [];
-        if (films.length > 20) {
-            for (let i = 20; i < 30; i++) {
-                newRender.push(films[i]);
-            }
-            this.setState({
-                renderList: newRender,
-            });
-        } else if (films.length > 10) {
-            for (let i = 0; i < 10; i++) {
-                newRender.push(films[i]);
-            }
-            this.setState({
-                renderList: newRender,
-            });
-        } else {
-            this.setState({
-                renderList: films,
+            this.setState(() => {
+                return {
+                    movieData: films,
+                    loading: false,
+                    error: false,
+                    totalPages: body.total_pages,
+                    notFound: false,
+                };
             });
         }
     };
 
     onPageChange = (page) => {
-        const { movieData } = this.state;
-        if (page % 2 !== 0) {
-            this.setState({
-                movieData: [],
-                pageNumber: page,
-                loading: true,
-            });
-        } else if (page === 1) {
-            this.setState({
-                movieData: [],
-                pageNumber: page,
-                loading: true,
-            });
-        } else {
-            const newRender = [];
-            for (let i = 10; i < 20; i++) {
-                newRender.push(movieData[i]);
-            }
-            this.setState({
-                movieData: newRender,
-                pageNumber: page,
-                loading: true,
-            });
-        }
-        this.onRenderList(movieData);
+        this.setState({
+            pageNumber: page,
+            loading: true,
+        });
     };
 
     makeQuery = (query) => {
-        this.setState({
-            inputValue: query,
-            pageNumber: 1,
-            loading: true,
-        });
+        this.setState(
+            {
+                inputValue: query,
+                pageNumber: 1,
+                loading: true,
+            },
+            () => this.updateSearch()
+        );
     };
 
     onButtonChange = (btn) => {
@@ -211,20 +163,22 @@ export default class App extends Component {
     };
 
     showRatedMovie = () => {
-        const { sessionId } = this.state;
+        const { sessionId, pageNumber } = this.state;
         this.getInfo
-            .getFilmRate(sessionId)
+            .getFilmRate(sessionId, pageNumber)
             .then((body) => {
                 this.setState({
                     error: false,
+                    loading: false,
                     notFound: false,
-                    renderList: body.results,
+                    movieData: body.results,
                     totalPages: body.total_pages,
                 });
 
                 if (body.results.length === 0) {
                     this.setState({
                         notFound: true,
+                        loading: false,
                     });
                 }
             })
@@ -259,13 +213,16 @@ export default class App extends Component {
     }
 
     render() {
-        const { RenderError } = this.state;
-        if (RenderError) {
+        if (!navigator.onLine) {
+            return <DisconnectIndicator />;
+        }
+
+        const { renderError } = this.state;
+        if (renderError) {
             return <Error />;
         }
 
         const {
-            renderList,
             movieData,
             sessionId,
             button,
@@ -277,12 +234,12 @@ export default class App extends Component {
         } = this.state;
 
         const pagination =
-            movieData.length > 10 && !loading && !error && !notFound ? (
+            totalPages > 1 && !loading && !error && !notFound ? (
                 <Pagination
                     className='pagination'
                     defaultCurrent={1}
                     current={pageNumber}
-                    total={Math.ceil(totalPages / 10)}
+                    total={totalPages}
                     showSizeChanger={false}
                     disabled={false}
                     onChange={this.onPageChange}
@@ -303,9 +260,8 @@ export default class App extends Component {
         ) : null;
 
         const list = hasData ? (
-            <CardList data={renderList} sessionId={sessionId} />
+            <CardList data={movieData} sessionId={sessionId} />
         ) : null;
-
         return (
             <FilmGenreProvider value={this.getGenre}>
                 <section className='container'>
