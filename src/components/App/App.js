@@ -38,7 +38,13 @@ export default class App extends Component {
         const { pageNumber } = this.state;
         this.allFillmGenres();
         this.showPopularFilms(pageNumber);
-        this.createGuestSession();
+        if (sessionStorage.getItem('sessionId') === null) {
+            this.createGuestSession();
+        } else {
+            this.setState({
+                sessionId: sessionStorage.getItem('sessionId'),
+            });
+        }
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -174,7 +180,6 @@ export default class App extends Component {
                     movieData: body.results,
                     totalPages: body.total_pages,
                 });
-
                 if (body.results.length === 0) {
                     this.setState({
                         notFound: true,
