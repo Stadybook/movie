@@ -12,7 +12,14 @@
     margin-bottom: 0;
  }
 
-
+.spin{
+    width: 200px;
+    height: 0px;
+}
+.spin .spiner{
+    height: 100px;
+    margin-top: 60px;
+}
 
 .card__description{
     height: 235px; 

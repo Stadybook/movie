@@ -1,7 +1,10 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable class-methods-use-this */
 import React, { Component } from 'react';
 import { format } from 'date-fns';
 import { Image, Typography } from 'antd';
 
+import Spiner from '../Spiner';
 import CuttingFn from '../CuttingFn/CuttingFn';
 import Error from '../ErrorHanding';
 import './Card.css';
@@ -15,6 +18,7 @@ export default class Card extends Component {
         super(props);
         this.state = {
             reactError: false,
+            loading: false,
         };
     }
 
@@ -25,7 +29,7 @@ export default class Card extends Component {
     }
 
     render() {
-        const { reactError } = this.state;
+        const { reactError, loading } = this.state;
         if (reactError) {
             return <Error />;
         }
@@ -80,9 +84,25 @@ export default class Card extends Component {
             colorBorder = '#66E900';
         }
 
+        const img = (
+            <>
+                {loading ? null : (
+                    <div className='spin'>
+                        <Spiner />
+                    </div>
+                )}
+
+                <Image
+                    style={loading ? {} : { display: 'none' }}
+                    src={src}
+                    alt='movie-zphoto'
+                    onLoad={() => this.setState({ loading: true })}
+                />
+            </>
+        );
         return (
             <li key={id} className='card'>
-                <Image src={src} alt='movie-zphoto' />
+                {img}
                 <div className='card__info'>
                     <Typography className='card__description'>
                         <Title className='card__title' level={4}>
