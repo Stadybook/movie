@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable no-plusplus */
 /* eslint-disable react/destructuring-assignment */
 
 import React, { Component } from 'react';
@@ -29,6 +29,8 @@ export default class App extends Component {
             genresData: [],
             button: 'Search',
             sessionId: '',
+            renderList: [],
+            paginationPage: 1,
         };
     }
 
@@ -44,16 +46,6 @@ export default class App extends Component {
             this.setState({
                 sessionId: sessionStorage.getItem('sessionId'),
             });
-        }
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        const { button, pageNumber } = prevState;
-        if (this.state.pageNumber !== pageNumber) {
-            this.updateSearch();
-        }
-        if (this.state.button !== button) {
-            this.togglePage();
         }
     }
 
@@ -130,71 +122,133 @@ export default class App extends Component {
                 loading: false,
             });
         } else {
-            this.setState(() => {
-                return {
-                    movieData: films,
-                    loading: false,
-                    error: false,
-                    totalPages: body.total_pages,
-                    notFound: false,
-                };
+            this.setState(
+                () => {
+                    return {
+                        movieData: films,
+                        loading: false,
+                        error: false,
+                        totalPages: body.total_pages,
+                        notFound: false,
+                    };
+                },
+                () => this.onRenderList(this.state.movieData)
+            );
+        }
+    };
+
+    onRenderList = (films) => {
+        const { paginationPage } = this.state;
+        const newRender = [];
+        if (films.length > 10) {
+            if (paginationPage % 2 === 0) {
+                for (let i = 10; i < films.length; i++) {
+                    newRender.push(films[i]);
+                }
+            } else {
+                for (let i = 0; i < 10; i++) {
+                    newRender.push(films[i]);
+                }
+            }
+            this.setState({
+                renderList: newRender,
+            });
+        } else {
+            for (let i = 0; i < films.length; i++) {
+                newRender.push(films[i]);
+            }
+            this.setState({
+                renderList: newRender,
+                loading: false,
             });
         }
     };
 
     onPageChange = (page) => {
-        this.setState({
-            pageNumber: page,
-            loading: true,
-        });
+        if (page === 1) {
+            this.setState(
+                {
+                    movieData: [],
+                    paginationPage: 1,
+                    pageNumber: page,
+                    loading: true,
+                },
+                () => this.updateSearch()
+            );
+        } else if (page % 2 !== 0) {
+            const requestPage = Math.ceil((page + 1) / 2);
+            this.setState(
+                {
+                    movieData: [],
+                    pageNumber: requestPage,
+                    paginationPage: page,
+                    loading: true,
+                },
+                () => this.updateSearch()
+            );
+        } else {
+            const requestPage = page / 2;
+            this.setState(
+                {
+                    movieData: [],
+                    pageNumber: requestPage,
+                    paginationPage: page,
+                    loading: true,
+                },
+                () => this.updateSearch()
+            );
+        }
     };
 
     makeQuery = (query) => {
-        this.setState(
-            {
-                inputValue: query,
-                pageNumber: 1,
-                loading: true,
-            },
-            () => this.updateSearch()
-        );
+        const { button } = this.state;
+        if (query === '' && button === 'Search') {
+            this.setState(
+                {
+                    inputValue: query,
+                    pageNumber: 1,
+                    paginationPage: 1,
+                    loading: true,
+                    movieData: [],
+                },
+                () => this.showPopularFilms()
+            );
+        } else {
+            this.setState(
+                {
+                    inputValue: query,
+                    pageNumber: 1,
+                    paginationPage: 1,
+                    loading: true,
+                    movieData: [],
+                },
+                () => this.showRequesFilm()
+            );
+        }
     };
 
     onButtonChange = (btn) => {
-        this.setState({
-            button: btn,
-            pageNumber: 1,
-            loading: true,
-        });
+        this.setState(
+            {
+                button: btn,
+                pageNumber: 1,
+                loading: true,
+                paginationPage: 1,
+            },
+            () => this.togglePage()
+        );
     };
 
     showRatedMovie = () => {
         const { sessionId, pageNumber } = this.state;
         this.getInfo
             .getFilmRate(sessionId, pageNumber)
-            .then((body) => {
-                this.setState({
-                    error: false,
-                    loading: false,
-                    notFound: false,
-                    movieData: body.results,
-                    totalPages: body.total_pages,
-                });
-                if (body.results.length === 0) {
-                    this.setState({
-                        notFound: true,
-                        loading: false,
-                    });
-                }
-            })
+            .then((body) => this.onFilmListItem(body))
             .catch(this.onError);
     };
 
     showRequesFilm = () => {
         const { inputValue, pageNumber } = this.state;
-        this.setState({
-            movieData: [],
-        });
         this.getInfo
             .getRequestFilms(inputValue, pageNumber)
             .then((body) => this.onFilmListItem(body))
@@ -214,6 +268,9 @@ export default class App extends Component {
         if (inputValue === '' && button === 'Search') {
             return this.showPopularFilms();
         }
+        if (button === 'Rated') {
+            return this.showRatedMovie();
+        }
         return this.showRequesFilm();
     }
 
@@ -228,23 +285,37 @@ export default class App extends Component {
         }
 
         const {
+            renderList,
             movieData,
             sessionId,
             button,
             notFound,
-            pageNumber,
+            paginationPage,
             totalPages,
             loading,
             error,
         } = this.state;
 
+        let pageALl;
+        if (movieData.length % 20 === 0) {
+            pageALl = totalPages * 2;
+        } else if (totalPages === 1 && movieData.length > 10) {
+            pageALl = 2;
+        } else if (totalPages !== 1 && movieData.length % 20 > 10) {
+            pageALl = totalPages * 2;
+        } else if (totalPages !== 1 && movieData.length % 20 <= 10) {
+            pageALl = totalPages * 2 - 1;
+        } else {
+            pageALl = 1;
+        }
+
         const pagination =
-            totalPages > 1 && !loading && !error && !notFound ? (
+            movieData.length >= 11 && !loading && !error && !notFound ? (
                 <Pagination
                     className='pagination'
                     defaultCurrent={1}
-                    current={pageNumber}
-                    total={totalPages}
+                    current={paginationPage}
+                    total={pageALl * 10}
                     showSizeChanger={false}
                     disabled={false}
                     onChange={this.onPageChange}
@@ -265,7 +336,7 @@ export default class App extends Component {
         ) : null;
 
         const list = hasData ? (
-            <CardList data={movieData} sessionId={sessionId} />
+            <CardList data={renderList} sessionId={sessionId} />
         ) : null;
         return (
             <FilmGenreProvider value={this.getGenre}>
